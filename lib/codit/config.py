@@ -76,7 +76,17 @@ class CFG:
                             'Moderna': self.__X_IMMUNITIES}
     # https://www.who.int/emergencies/diseases/novel-coronavirus-2019/covid-19-vaccines
     # https://www.gov.uk/government/news/one-dose-of-covid-19-vaccine-can-cut-household-transmission-by-up-to-half
-    # https://twitter.com/JamesWard73/status/1388524356490440708        
+    # https://twitter.com/JamesWard73/status/1388524356490440708
+
+    @property
+    def MULTI_VACCINATION_IMMUNITY(self):
+        # Placeholder numbers until more reliable numbers can be found
+        return {'AstraZeneca': [.8, .9, .95],
+                'Pfizer': [.8, .9, .95],
+                'Moderna': [.8, .9, .95]}
+
+
+
 
 def set_config(obj, conf):
     obj.cfg = CFG()

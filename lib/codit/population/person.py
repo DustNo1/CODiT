@@ -25,6 +25,12 @@ class Person:
         self.vaccinations = []
         self.home = home
 
+        self.immunities = dict()
+
+        # Currently only keeping track of number of vaccinations, not time between vaccinations
+        self.multi_vaccinations = {(vax, 0) for vax in self.cfg.MULTI_VACCINATION_IMMUNITY}
+        self.multi_immunities = dict()
+
         self.simplify_state()
         self.update_immunities()
 
@@ -65,7 +71,13 @@ class Person:
 
         self.immunities = immunities
 
-    def succeptibility_to(self, disease):
+        multi_immunities = dict()
+        for multi_v, jab_count in self.multi_vaccinations:
+            if jab_count > 0:
+                multi_immunities[multi_v] = self.cfg.MULTI_VACCINATION_IMMUNITY[multi_v][jab_count-1]
+        self.multi_immunities = multi_immunities
+
+    def susceptibility_to(self, disease):
         return 1. - self.immunities.get(str(disease), 0.)
 
     def vaccinate_with(self, vaccine):
@@ -73,19 +85,24 @@ class Person:
         self.vaccinations.append(vaccine)
         self.update_immunities()
 
+    def multi_vaccinate_with(self, vaccine):
+        assert vaccine in self.cfg.MULTI_VACCINATION_IMMUNITY
+        self.multi_vaccinations[vaccine] += 1
+        self.update_immunities()
+
     def attack(self, other, days):
         if self.infectious:
             self.infectious_attack(other, days)
 
     def infectious_attack(self, other, days):
-        succeptibility = other.succeptibility_to(self.disease)
-        if succeptibility > 0:
-            if random.random() < self.disease.pr_transmit_per_day * days * succeptibility:
+        susceptibility = other.susceptibility_to(self.disease)
+        if susceptibility > 0:
+            if random.random() < self.disease.pr_transmit_per_day * days * susceptibility:
                 other.set_infected(self.disease, infector=self)
                 self.victims.add(other.name)
 
     def set_infected(self, disease, infector=None):
-        assert self.succeptibility_to(disease) > 0
+        assert self.susceptibility_to(disease) > 0
         self.covid_experiences.append(disease)
         self.update_immunities()
         self.infectious = True

@@ -85,7 +85,7 @@ def seed_infection(n_infected, people, diseases, society, seed_periods=None):
         n_infected = {str(d): n_infected for d in diseases}
     for d in diseases:
         seed_periods = seed_periods or d.days_infectious
-        succeptibles = [p for p in people if p.succeptibility_to(d) > 0]
+        succeptibles = [p for p in people if p.susceptibility_to(d) > 0]
         for p in random.sample(succeptibles, n_infected[str(d)]):
             p.set_infected(d)
             stage = random.random() * seed_periods
